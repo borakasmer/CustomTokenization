@@ -1,0 +1,13 @@
+﻿@{
+    ViewData["Title"] = "About";
+}
+<h2>@ViewData["Title"]</h2>
+<h3>@ViewData["Message"]</h3>
+@if(@ViewBag.Token!=null)
+{
+    <script>   
+        alert('@Html.Raw(@ViewBag.Token)');
+        localStorage.setItem("token", '@Html.Raw(@ViewBag.Token)');
+    </script>
+}
+<p>Use this area to provide additional information.</p>

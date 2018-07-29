@@ -1,0 +1,134 @@
+<script src="~/lib/jquery/dist/jquery.js"></script> 
+<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />   
+<script>
+     $(document).ready(function () {
+         $("#commandDiv").hide();
+         $("#detailDiv").hide();
+         
+         $("#comboCategory").change(function(){             
+             fillNews($( this ).val());
+         });
+         $("#comboNews").change(function(){
+             fillNewsDetail($('option:selected', this).attr('detail'));
+
+             fillCommands($('option:selected', this).val());
+         });
+            var token=localStorage.getItem('token').split("æ")[0];           
+            $.getJSON("/api/news/"+token).done(function (data) {                       
+                 if(data.length==0)
+                    {
+                        window.location.href = 'https://localhost:1923';
+                    }                                       
+                var items = [];
+                items.push("<option>Kategory Seçin</option>");
+                for (i = 0; i < data.length; i++) {                        
+                    items.push("<option value=" + data[i].id + ">" + data[i].ad + "</option>");
+                }
+                $("#comboCategory").html(items.join(' '));
+                });         
+            
+            function fillNews(categoryID){
+                $("#detailDiv").hide();  
+                $("#commandDiv").hide();          
+                var token=localStorage.getItem('token').split("æ")[0];
+                $.getJSON("/api/news/"+categoryID+"/"+token).done(function (data) {   
+
+                    if(data.length==0)
+                    {
+                        window.location.href = 'https://localhost:1923';
+                    }    
+
+                    if(data[0].refreshToken!=null)
+                    {
+                        alert(data[0].refreshToken); 
+                        localStorage.setItem("token", data[0].refreshToken); 
+                    }                       
+
+                    var items = [];
+                    items.push("<option>Haber Seçin</option>");
+                      for (i = 0; i < data.length; i++) {                        
+                        items.push("<option detail='" + data[i].detay + "' value=" + data[i].id + ">" + data[i].baslik + "</option>");
+                        }
+                    $("#comboNews").html(items.join(' '));
+                    });
+                    $("#comboNews").show();
+                }
+                function fillNewsDetail(detail){
+                    $("#newsDetail").html(detail);
+                    $("#detailDiv").show();
+                }
+                function fillCommands(newsID)
+                {      
+                    $("#commandDiv").hide();                               
+                    var token=localStorage.getItem('token').split("æ")[0];
+                    $.getJSON("/api/news/command/"+newsID+"/"+token).done(function (data) {                      
+                    console.log("Data:"+JSON.stringify(data)); 
+
+                    if(data.length==0)
+                    {
+                        window.location.href = 'https://localhost:1923';
+                    }    
+                    
+                    if(data[0].refreshToken!=null)
+                    {
+                        alert(data[0].refreshToken); 
+                        localStorage.setItem("token", data[0].refreshToken); 
+                    }                                        
+
+                    var items = [];                                      
+                      for (i = 0; i < data.length; i++) {                        
+                        items.push("<tr><td> [<b>" + data[i].isim + "</b>]:" + data[i].icerik+  "</td><td>"+ data[i].tarih +"</td></tr>");
+                        }
+                    $("#tableCommand").html(items.join(' '));
+                    });
+                    $("#commandDiv").show();
+                }
+            });
+</script>
+@if(@ViewBag.Token!=null)
+{
+    <script>   
+        alert('@Html.Raw(@ViewBag.Token)');
+        localStorage.setItem("token", '@Html.Raw(@ViewBag.Token)');
+    </script>
+}
+
+<div class="container">
+    <table  class="table">
+    <thead>
+      <tr>
+        <th>Kategoryler</th>
+        <th>Haberler</th>      
+      </tr>
+    </thead>
+        <tbody>
+            <tr>
+               <td style="width: 10%">                                                   
+                    <select id="comboCategory">    
+                    </select>
+               </td>            
+               <td style="width: 10%">                                                      
+                    <select id="comboNews">    
+                    </select>
+               </td>
+               <td style="width: 10%"></td>
+            </tr>
+        </tbody>
+    </table>  
+  <div class="form-group" id="detailDiv">
+    <label for="comment">Haber Detay:</label>
+    <textarea class="form-control" rows="5" id="newsDetail"></textarea>
+  </div>
+  <div class="form-group" id="commandDiv">
+   <label for="comment">Yorumlar:</label>
+   <table  class="table">
+        <tbody id="tableCommand">
+            <tr>
+               <td>                                                                      
+               </td>                           
+            </tr>
+        </tbody>
+   </table>
+  </div>
+</div>

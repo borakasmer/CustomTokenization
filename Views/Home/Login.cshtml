@@ -1,0 +1,68 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Login Page</title>
+    <script src="~/lib/jquery/dist/jquery.js"></script> 
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />     
+    <script>              
+        $(document).ready(function () {                                            
+            $("#btnSubmit").click(function () {
+                $.post("/Home/Login",
+                {
+                    name: $("#userName").val(),
+                    password: $("#password").val(),
+                }, function (result) {
+                    if (result != "Error") {                        
+                        localStorage.setItem("token", result);
+                        location.href = "/Home/Index";
+                    }
+                    else {
+                        alert("Yanlış Username veya Password Girdiniz.");
+                    }
+                });
+            });
+            $("#userName").focus();
+        });
+
+        function pushEnter(event) {
+            if (event.which == 13) {
+                $('#btnSubmit').click();
+            }
+        }
+        function movePassword(event)
+        {
+            if(event.which == 13 && $.trim($("#userName").val())!="")
+            {
+                $('#password').focus();
+            }   
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-offset-5 col-md-3">
+                <div class="form-login">
+                    <h3>Token Login Page</h3>
+                    <input type="text" id="userName" class="form-control input-sm chat-input" placeholder="Kullanıcı Adı Giriniz" onkeydown="movePassword(event)" />
+                    <br />
+                     <input type="text" id="password" class="form-control input-sm chat-input" placeholder="Şifrenizi Giriniz" onkeydown="pushEnter(event)" />
+                    <br />
+                    <div class="wrapper">
+                        <span class="group-btn">
+                            <a href="#" class="btn btn-primary btn-md" id="btnSubmit">Giriş Yapınız <i class="fa fa-sign-in"></i></a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
